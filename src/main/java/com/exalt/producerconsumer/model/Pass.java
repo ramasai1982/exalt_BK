@@ -10,6 +10,7 @@ import java.util.Date;
 @Setter
 @ToString
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
 @Component
 @Entity
@@ -18,7 +19,7 @@ public class Pass{
     @Id
     @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer idPass;
+    private Long idPass;
     private String firstName;
     private String lastName;
     private boolean statusVIP;
