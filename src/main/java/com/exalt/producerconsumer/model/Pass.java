@@ -9,17 +9,15 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor
-@Builder
 @NoArgsConstructor
 @Component
 @Entity
 public class Pass{
 
     @Id
-    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idPass;
+    @Column(name="idpass", nullable = false, updatable = false)
+    private Integer id_pass;
     private String firstName;
     private String lastName;
     private boolean statusVIP;
@@ -35,4 +33,5 @@ public class Pass{
         this.dateTimeOfRequest = dateTimeOfRequest;
         this.dateTimeOfGeneration = dateTimeOfGeneration;
     }
+
 }

@@ -10,6 +10,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 @Service
 public class BatchPassGenerator {
@@ -19,6 +21,8 @@ public class BatchPassGenerator {
     private final SortVIPService sortVIPService;
     @Autowired
     private final PersonGenerator personGenerator;
+
+    private List<Consumer<Object>> progressConsumers = new CopyOnWriteArrayList<>();
 
     public BatchPassGenerator(SortVIPService sortVIPService, PersonGenerator personGenerator) {
         this.sortVIPService = sortVIPService;
@@ -40,17 +44,24 @@ public class BatchPassGenerator {
         List<Person> personListToBeGenerated = sortVIPService.sortVIPList(personList);
 
         //generate all passes
-        for(Person personList2 : personListToBeGenerated){
+        for(Person person : personListToBeGenerated){
             //Thread.sleep(1000);
-            Pass pass = new Pass(personList2.getFirstName(),
-                    personList2.getLastName(),
-                    personList2.isStatusVIP(),
-                    personList2.getDateOfBirth(),
+            Pass pass = new Pass(person.getFirstName(),
+                    person.getLastName(),
+                    person.isStatusVIP(),
+                    person.getDateOfBirth(),
                     dateFormat.format(dateTimeOfRequest),
-                    dateFormat.format(new Date()));
+                    "Sera inscrit sur le passe lors de génération");
+            System.out.println(pass.getId_pass());
             allPasses.add(pass);
+
+            int progress = (personListToBeGenerated.indexOf(person) + 1) * 100/personListToBeGenerated.size();
         }
 
+        return allPasses;
+    }
+
+    public List<Pass> getLocalPasses(){
         return allPasses;
     }
 
@@ -58,5 +69,6 @@ public class BatchPassGenerator {
         allPasses.clear();
         return allPasses;
     }
+
 
 }

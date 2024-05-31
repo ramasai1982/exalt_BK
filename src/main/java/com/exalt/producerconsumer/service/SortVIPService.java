@@ -1,5 +1,6 @@
 package com.exalt.producerconsumer.service;
 
+import com.exalt.producerconsumer.model.Pass;
 import com.exalt.producerconsumer.model.Person;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +32,29 @@ public class SortVIPService {
         personListSorted.addAll(personListNoVIP);
 
         return personListSorted;
+    }
+
+    public List<Pass> sortVIPPassList(List<Pass> passListToBeSorted){
+
+        List<Pass> passListSorted;
+        List<Pass> passListNoVIP;
+
+        Predicate<Pass> isNotVIP = passList1 -> !passList1.isStatusVIP();
+        Predicate<Pass> isVIP = Pass::isStatusVIP;
+
+        //passListToBeGenerated contains only the list of VIPs
+        passListSorted = passListToBeSorted.stream()
+                .filter(isVIP)
+                .collect(Collectors.toList());
+
+        //passListNoVIPToBeGenerated contains list of non VIPs
+        passListNoVIP = passListToBeSorted.stream()
+                .filter(isNotVIP)
+                .toList();
+
+        //passListToBeGenerated now contains VIPs list on the top and non VIPs on the bottom
+        passListSorted.addAll(passListNoVIP);
+
+        return passListSorted;
     }
 }
