@@ -1,6 +1,7 @@
 package com.exalt.producerconsumer.service;
 
 import com.exalt.producerconsumer.model.Pass;
+import com.exalt.producerconsumer.model.PassProgress;
 import com.exalt.producerconsumer.model.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,41 +22,52 @@ public class BatchPassGenerator {
     private final SortVIPService sortVIPService;
     @Autowired
     private final PersonGenerator personGenerator;
+    @Autowired
+    private PassProgress passProgress;
+
+    @Autowired
+    private final PassProgressUpdater passProgressUpdater;
+
 
     private List<Consumer<Object>> progressConsumers = new CopyOnWriteArrayList<>();
 
-    public BatchPassGenerator(SortVIPService sortVIPService, PersonGenerator personGenerator) {
+    public BatchPassGenerator(SortVIPService sortVIPService, PersonGenerator personGenerator, PassProgress passProgress, PassProgressUpdater passProgressUpdater) {
         this.sortVIPService = sortVIPService;
         this.personGenerator = personGenerator;
+        this.passProgress = passProgress;
+        this.passProgressUpdater = passProgressUpdater;
+
     }
 
     // Generates pass in batch with required inPut list of passes with minimum required fields
     // required -> first name, last name, vip status & date of birth
-    public List<Pass> generatePassBatch(int numberOfPasses)  {
+    public List<Pass> generatePassBatch(int numberOfPasses, String batchCode) throws InterruptedException {
 
         List<Person> personList;
+        passProgress = new PassProgress(batchCode, numberOfPasses, 0);
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date dateTimeOfRequest = new Date();
 
         //method called to generate list of persons
-        personList = personGenerator.generatePersonForPass(numberOfPasses);
+        personList = personGenerator.generatePersonForPass(numberOfPasses, batchCode);
 
         //method called to sort the list to get VIPs on the top of the list
         List<Person> personListToBeGenerated = sortVIPService.sortVIPList(personList);
 
         //generate all passes
         for(Person person : personListToBeGenerated){
-            //Thread.sleep(1000);
             Pass pass = new Pass(person.getFirstName(),
                     person.getLastName(),
                     person.isStatusVIP(),
                     person.getDateOfBirth(),
                     dateFormat.format(dateTimeOfRequest),
                     "Sera inscrit sur le passe lors de génération");
-            System.out.println(pass.getId_pass());
+            System.out.println(pass.getLastName());
             allPasses.add(pass);
 
-            int progress = (personListToBeGenerated.indexOf(person) + 1) * 100/personListToBeGenerated.size();
+            passProgress.setPassTotalComplete(allPasses.size());
+            passProgressUpdater.setPassProgress(passProgress, batchCode);
+            Thread.sleep(1000);
         }
 
         return allPasses;

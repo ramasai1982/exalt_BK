@@ -10,6 +10,7 @@ import java.util.Date;
 @Setter
 @ToString
 @NoArgsConstructor
+@AllArgsConstructor
 @Component
 @Entity
 public class Pass{

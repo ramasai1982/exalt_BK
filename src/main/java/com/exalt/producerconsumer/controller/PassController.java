@@ -3,18 +3,15 @@ package com.exalt.producerconsumer.controller;
 import com.exalt.producerconsumer.dao.PassDao;
 import com.exalt.producerconsumer.model.Pass;
 import com.exalt.producerconsumer.service.BatchPassGenerator;
-import com.exalt.producerconsumer.service.PassPDFGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.List;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/batch/")
 public class PassController {
 
     private final PassDao passDao;
@@ -22,8 +19,7 @@ public class PassController {
     @Autowired
     private BatchPassGenerator batchPassGenerator;
 
-    @Autowired
-    private PassPDFGenerator passPDFGenerator;
+
 
     @Autowired
     public PassController(PassDao passDao) {
@@ -35,20 +31,20 @@ public class PassController {
         this.singlePassGenerator = singlePassGenerator;
     }*/
 
-    @GetMapping("batch/{numberOfPasses}")
-    public ResponseEntity<List<Pass>> generatePassBatch(@PathVariable("numberOfPasses") int numberOfPasses) {
-        List<Pass> passes = batchPassGenerator.generatePassBatch(numberOfPasses);
+    @GetMapping("{batchCode}/{numberOfPasses}")
+    public ResponseEntity<List<Pass>> generatePassBatch(@PathVariable int numberOfPasses, @PathVariable String batchCode) throws InterruptedException {
+        List<Pass> passes = batchPassGenerator.generatePassBatch(numberOfPasses, batchCode);
         return new ResponseEntity<>(passes, HttpStatus.CREATED);
     }
 
-    @GetMapping("batch-new/{numberOfPasses}")
-    public ResponseEntity<List<Pass>> generatePassNewBatch(@PathVariable("numberOfPasses") int numberOfPasses)  {
+    @GetMapping("/new/{batchCode}/{numberOfPasses}")
+    public ResponseEntity<List<Pass>> generatePassNewBatch(@PathVariable int numberOfPasses, @PathVariable String batchCode) throws InterruptedException {
         batchPassGenerator.deleteLocallyCreatedBatchPasses();
-        List<Pass> passes = batchPassGenerator.generatePassBatch(numberOfPasses);
+        List<Pass> passes = batchPassGenerator.generatePassBatch(numberOfPasses, batchCode);
         return new ResponseEntity<>(passes, HttpStatus.CREATED);
     }
 
-    @PostMapping("batch/store-to-db")
+    @PostMapping("store-to-db")
     public ResponseEntity<List<Pass>> saveToDatabase(@RequestBody List<Pass> passesTobeStoredInDatabase){
         System.out.println(passesTobeStoredInDatabase);
         passDao.saveToDatabase(passesTobeStoredInDatabase);
@@ -61,7 +57,7 @@ public class PassController {
         return new ResponseEntity<>(passListLocal, HttpStatus.OK);
     }
 
-    @DeleteMapping("batch/delete-local-list")
+    @DeleteMapping("delete-local-list")
     public ResponseEntity<List<Pass>> deleteCreatedList(){
         List<Pass> passListCleared= batchPassGenerator.deleteLocallyCreatedBatchPasses();
         return new ResponseEntity<>(passListCleared, HttpStatus.OK);
@@ -73,7 +69,22 @@ public class PassController {
         return new ResponseEntity<>(allPassesFromDB, HttpStatus.OK);
     }*/
 
-    @PostMapping("batch/generate-PDF")
+/*    @PostMapping("batch/generate-PDF")
+    public ResponseEntity<byte[]> generatePDF(@RequestBody List<Pass> passesForPDFGeneration){
+        byte[] pdfBytes = passPDFGenerator.generatePassesPdf(passesForPDFGeneration);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "passes.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .body(pdfBytes);
+    }*/
+
+
+
+/*    @PostMapping("batch/generate-PDF")
     public ResponseEntity<List<Map<String, String>>> generatePDF(@RequestBody List<Pass> passesForPDFGeneration){
         List<byte[]> pdfBytesList = passPDFGenerator.generatePassesPdf(passesForPDFGeneration);
         List<Map<String, String>> responseList = new ArrayList<>();
@@ -94,20 +105,9 @@ public class PassController {
         }
 
         return new ResponseEntity<>(responseList, HttpStatus.OK);
-    }
+    }*/
 
-    @GetMapping("batch/generate-PDF/{numberOfPasses}")
-    public ResponseEntity<byte[]> generatePDF(@PathVariable("numberOfPasses") int numberOfPasses){
-        byte[] pdfBytes = passPDFGenerator.generatePassesPdf(numberOfPasses);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", "passes.pdf");
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(pdfBytes);
-    }
 
 }
 

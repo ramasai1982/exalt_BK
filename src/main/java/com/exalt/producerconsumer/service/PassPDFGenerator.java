@@ -13,7 +13,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +29,33 @@ public class PassPDFGenerator implements Serializable {
         this.sortVIPService = sortVIPService;
     }
 
-    public byte[] generatePassesPdf(int numberOfPasses) {
+    public byte[] generatePassesPdf(List<Pass> passes) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(byteArrayOutputStream);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        PageSize pagesize = new PageSize(360, 300);
+        Document document = new Document(pdfDoc, pagesize);
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+        int count = 1;
+        for (Pass pass : passes) {
+            document.add(new Paragraph("Pass EXALT No." + count));
+            document.add(new Paragraph("Nom: " + pass.getLastName()));
+            document.add(new Paragraph("Prénom: " + pass.getFirstName()));
+            document.add(new Paragraph("Statut VIP: " + (pass.isStatusVIP() ? "Oui" : "Non")));
+            document.add(new Paragraph("Date de naissance: " + pass.getDateOfBirth()));
+            document.add(new Paragraph("Date/Heure du demande: " + pass.getDateTimeOfRequest()));
+            document.add(new Paragraph("Date/Heure du génération: " + dateFormat.format(new Date())));
+            document.add(new Paragraph("\n"));
+            count++;
+        }
+
+        document.close();
+
+        return byteArrayOutputStream.toByteArray();
+    }
+
+ /*   public byte[] generatePassesPdf(int numberOfPasses) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(byteArrayOutputStream);
         PdfDocument pdfDoc = new PdfDocument(writer);
@@ -57,40 +82,19 @@ public class PassPDFGenerator implements Serializable {
 
         document.close();
         return byteArrayOutputStream.toByteArray();
-    }
+    }*/
 
     // List<Pass> passListToBeGenerated = sortVIPService.sortVIPPassList(passes);
 
 
-/*        public byte[] generatePassesPdf(List<Pass> passes) {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            PdfWriter writer = new PdfWriter(byteArrayOutputStream);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            PageSize pagesize = new PageSize(360, 300);
-            Document document = new Document(pdfDoc, pagesize);
 
 
-            for (Pass pass : passes) {
-                    document.add(new Paragraph("Pass EXALT"));
-                    document.add(new Paragraph("Nom: " + pass.getLastName()));
-                    document.add(new Paragraph("Prénom: " + pass.getFirstName()));
-                    document.add(new Paragraph("Statut VIP: " + (pass.isStatusVIP() ? "Oui" : "Non")));
-                    document.add(new Paragraph("Date de naissance: " + pass.getDateOfBirth()));
-                    document.add(new Paragraph("Date/Heure du demande: " + pass.getDateTimeOfRequest()));
-                    document.add(new Paragraph("Date/Heure du génération: " + pass.getDateTimeOfGeneration()));
-                    document.add(new Paragraph("\n"));
-            }
-
-            document.close();
-
-            return byteArrayOutputStream.toByteArray();
-        }*/
-
-    public List<byte[]> generatePassesPdf(List<Pass> passes) {
+   /* public List<byte[]> generatePassesPdf(List<Pass> passes) {
         List<byte[]> pdfByteArrayList = new ArrayList<>();
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
+        System.out.println(passes.size());
         for (Pass pass : passes) {
+
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PdfWriter writer = new PdfWriter(byteArrayOutputStream);
             PdfDocument pdfDoc = new PdfDocument(writer);
@@ -112,6 +116,7 @@ public class PassPDFGenerator implements Serializable {
         }
 
         return pdfByteArrayList;
-    }
+    }*/
+
 
 }

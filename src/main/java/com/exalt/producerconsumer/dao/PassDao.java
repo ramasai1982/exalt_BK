@@ -31,7 +31,6 @@ public class PassDao {
     }
 
     public Pass findById(Integer id){
-        System.out.println(id);
         return passRepo.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User id " + id + " was not found"));
 
