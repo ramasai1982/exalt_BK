@@ -11,8 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 
 @Service
 public class BatchPassGenerator {
@@ -28,8 +26,6 @@ public class BatchPassGenerator {
     @Autowired
     private final PassProgressUpdater passProgressUpdater;
 
-
-    private List<Consumer<Object>> progressConsumers = new CopyOnWriteArrayList<>();
 
     public BatchPassGenerator(SortVIPService sortVIPService, PersonGenerator personGenerator, PassProgress passProgress, PassProgressUpdater passProgressUpdater) {
         this.sortVIPService = sortVIPService;
