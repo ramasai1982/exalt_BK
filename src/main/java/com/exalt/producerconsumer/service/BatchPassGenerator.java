@@ -66,6 +66,11 @@ public class BatchPassGenerator {
             allPasses.add(pass);
 
             passProgress.setPassTotalComplete(allPasses.size());
+            if(personListToBeGenerated.indexOf(person)==0 && personListToBeGenerated.size()==numberOfPasses){
+                System.out.println("here");
+                passProgress.setPassTotalRequest(allPasses.size()-1+numberOfPasses);
+            }
+
             passProgressUpdater.setPassProgress(passProgress, batchCode);
             Thread.sleep(1000);
         }
